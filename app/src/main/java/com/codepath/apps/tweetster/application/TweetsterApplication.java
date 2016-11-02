@@ -1,5 +1,6 @@
-package com.codepath.apps.tweetster;
+package com.codepath.apps.tweetster.application;
 
+import com.codepath.apps.tweetster.TwitterClient;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;

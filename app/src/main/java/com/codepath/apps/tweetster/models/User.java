@@ -67,6 +67,9 @@ public class User {
     private long uid;
     private String screenName;
     private String profileImageUrl;
+    private int numFollowers;
+    private int numFollowing;
+    private String tagline;
 
     public static User fromJSON(JSONObject object) {
         User u = new User();
@@ -76,6 +79,9 @@ public class User {
             u.uid = object.getLong("id");
             u.screenName = object.getString("screen_name");
             u.profileImageUrl = object.getString("profile_image_url");
+            u.tagline = object.getString("description");
+            u.numFollowers = object.getInt("followers_count");
+            u.numFollowing = object.getInt("friends_count");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -97,5 +103,17 @@ public class User {
 
     public String getProfileImageUrl() {
         return profileImageUrl;
+    }
+
+    public int getNumFollowers() {
+        return numFollowers;
+    }
+
+    public int getNumFollowing() {
+        return numFollowing;
+    }
+
+    public String getTagline() {
+        return tagline;
     }
 }

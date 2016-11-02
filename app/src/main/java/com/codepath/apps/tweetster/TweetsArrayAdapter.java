@@ -14,9 +14,6 @@ import java.util.List;
 
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
-/**
- * Created by truman_cranor on 11/1/16.
- */
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
     private List<Tweet> tweets;
