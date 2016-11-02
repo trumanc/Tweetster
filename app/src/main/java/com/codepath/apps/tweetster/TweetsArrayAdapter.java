@@ -21,6 +21,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView username;
         private TextView body;
+        private TextView timestamp;
 
         private ImageView profileImage;
 
@@ -29,6 +30,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             username = (TextView) itemView.findViewById(R.id.tvUserName);
             body = (TextView) itemView.findViewById(R.id.tvBody);
             profileImage = (ImageView) itemView.findViewById(R.id.ivProfileImage);
+            timestamp = (TextView) itemView.findViewById(R.id.tvTimestamp);
         }
     }
 
@@ -56,6 +58,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         Tweet tweet = tweets.get(position);
         holder.username.setText(tweet.getUser().getName());
         holder.body.setText(tweet.getBody());
+        holder.timestamp.setText(tweet.getRelativeTimeAgo());
 
         holder.profileImage.setImageResource(0);
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl()).into(holder.profileImage);
