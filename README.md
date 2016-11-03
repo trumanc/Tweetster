@@ -13,7 +13,7 @@ The following **required** functionality is completed:
   * [X] User is displayed the username, name, and body for each tweet
   * [X] User is displayed the [relative timestamp](https://gist.github.com/nesquena/f786232f5ef72f6e10a7) for each tweet "8m", "7h"
   * [ ] User can **pull down to refresh tweets** in either timeline
-  * [ ] User can view more tweets as they scroll with [infinite pagination](http://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView). Number of tweets is unlimited.
+  * [X] User can view more tweets as they scroll with [infinite pagination](http://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView). Number of tweets is unlimited.
 * [X] User can navigate to **view their own profile**
   * [X] User can see picture, tagline, # of followers, # of following, and tweets on their profile.
 * [ ] User can **click on the profile image** in any tweet to see **another user's** profile.

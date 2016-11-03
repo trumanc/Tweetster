@@ -18,6 +18,8 @@ import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
 
+import static android.R.attr.id;
+
 public class MentionsTimelineFragment extends TweetListFragment {
     private TwitterClient client;
 
@@ -27,7 +29,7 @@ public class MentionsTimelineFragment extends TweetListFragment {
         super.onCreate(savedInstanceState);
 
         client = TweetsterApplication.getRestClient();
-        populateTimeline();
+        loadTweetsSinceId(null);
     }
 
     @Override
@@ -36,8 +38,9 @@ public class MentionsTimelineFragment extends TweetListFragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    private void populateTimeline() {
-        client.getMentionsTimeline(new JsonHttpResponseHandler() {
+    @Override
+    protected void loadTweetsSinceId(Long id) {
+        client.getMentionsTimeline(id, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.d("DEBUG", response.toString());

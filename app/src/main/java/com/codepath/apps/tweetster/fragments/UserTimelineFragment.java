@@ -11,13 +11,14 @@ import android.view.ViewGroup;
 import com.codepath.apps.tweetster.TwitterClient;
 import com.codepath.apps.tweetster.application.TweetsterApplication;
 import com.codepath.apps.tweetster.models.Tweet;
-import com.codepath.apps.tweetster.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
+
+import static android.R.attr.id;
 
 public class UserTimelineFragment extends TweetListFragment {
     private TwitterClient client;
@@ -41,7 +42,8 @@ public class UserTimelineFragment extends TweetListFragment {
         //this.screenName = savedInstanceState.getString(ARG_SCREEN_NAME);
 
         client = TweetsterApplication.getRestClient();
-        populateTimeline();
+        loadTweetsSinceId(null);
+
     }
 
     @Override
@@ -50,8 +52,9 @@ public class UserTimelineFragment extends TweetListFragment {
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
-    private void populateTimeline() {
-        client.getUserTimeLine(screenName, new JsonHttpResponseHandler() {
+    @Override
+    protected void loadTweetsSinceId(Long id) {
+        client.getUserTimeline(id, screenName, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.d("DEBUG", response.toString());
