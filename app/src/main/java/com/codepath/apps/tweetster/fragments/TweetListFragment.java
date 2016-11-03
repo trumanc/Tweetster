@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ public abstract class TweetListFragment extends Fragment {
     private List<Tweet> tweets;
     private TweetsArrayAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
+    private SwipeRefreshLayout swipeContainer;
+    private boolean refreshing;
 
     public TweetListFragment() {
     }
@@ -33,6 +36,14 @@ public abstract class TweetListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tweet_list, container, false);
         rvTweets = (RecyclerView) view.findViewById(R.id.rvTweets);
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.content_timeline);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadTweetsSinceId(null);
+                refreshing = true;
+            }
+        });
         tweets = new ArrayList<>();
         adapter = new TweetsArrayAdapter(tweets);
 
@@ -62,6 +73,11 @@ public abstract class TweetListFragment extends Fragment {
         if (tweets.size() == 0) {
             Toast.makeText(getActivity(), "That's all!", Toast.LENGTH_SHORT).show();
         } else {
+            if (refreshing) {
+                this.tweets.clear();
+                swipeContainer.setRefreshing(false);
+                refreshing = false;
+            }
             this.tweets.addAll(tweets);
             adapter.notifyDataSetChanged();
         }
