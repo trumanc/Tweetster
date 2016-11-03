@@ -1,6 +1,7 @@
 package com.codepath.apps.tweetster.fragments;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -19,6 +20,7 @@ import org.json.JSONObject;
 import cz.msebera.android.httpclient.Header;
 
 import static android.R.attr.id;
+import static android.content.Intent.getIntent;
 
 public class UserTimelineFragment extends TweetListFragment {
     private TwitterClient client;
@@ -39,7 +41,7 @@ public class UserTimelineFragment extends TweetListFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //this.screenName = savedInstanceState.getString(ARG_SCREEN_NAME);
+        this.screenName = getArguments().getString(ARG_SCREEN_NAME);
 
         client = TweetsterApplication.getRestClient();
         loadTweetsSinceId(null);

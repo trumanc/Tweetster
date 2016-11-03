@@ -16,9 +16,9 @@ The following **required** functionality is completed:
   * [X] User can view more tweets as they scroll with [infinite pagination](http://guides.codepath.com/android/Endless-Scrolling-with-AdapterViews-and-RecyclerView). Number of tweets is unlimited.
 * [X] User can navigate to **view their own profile**
   * [X] User can see picture, tagline, # of followers, # of following, and tweets on their profile.
-* [ ] User can **click on the profile image** in any tweet to see **another user's** profile.
- * [ ] User can see picture, tagline, # of followers, # of following, and tweets of clicked user.
- * [ ] Profile view includes that user's timeline
+* [X] User can **click on the profile image** in any tweet to see **another user's** profile.
+ * [X] User can see picture, tagline, # of followers, # of following, and tweets of clicked user.
+ * [X] Profile view includes that user's timeline
 * [ ] User can **compose and post a new tweet**
   * [ ] User can click a “Compose” icon in the Action Bar on the top right
   * [ ] User can then enter a new tweet and post this to twitter

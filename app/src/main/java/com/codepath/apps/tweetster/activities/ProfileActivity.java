@@ -1,11 +1,15 @@
 package com.codepath.apps.tweetster.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.IntegerRes;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codepath.apps.tweetster.R;
 import com.codepath.apps.tweetster.TwitterClient;
@@ -15,6 +19,8 @@ import com.codepath.apps.tweetster.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
@@ -31,17 +37,27 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         client = TweetsterApplication.getRestClient();
 
-        client.getUserInfo(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                user = User.fromJSON(response);
+        final String screenName = getIntent().getStringExtra(EXTRA_SCREEN_NAME);
 
+        client.getUserInfo(screenName, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                if (response.length() > 0) {
+                    try {
+                        user = User.fromJSON(response.getJSONObject(0));
+                    } catch (JSONException e) {
+                        Log.e("ERROR", "Couldn't extract a user for profile activity.", e);
+                        finish();
+                    }
+                } else {
+                    Toast.makeText(ProfileActivity.this, "No user with screenname: " + screenName, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
                 getSupportActionBar().setTitle("@" + user.getScreenName());
                 populateProfileHeader(user);
             }
         });
 
-        String screenName = getIntent().getStringExtra(EXTRA_SCREEN_NAME);
         UserTimelineFragment frag = UserTimelineFragment.newInstance(screenName);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -49,6 +65,17 @@ public class ProfileActivity extends AppCompatActivity {
         ft.replace(R.id.flContainer, frag);
 
         ft.commit();
+    }
+
+    public static Intent forUsername(Context context, String username) {
+        Intent i = new Intent(context, ProfileActivity.class);
+        i.putExtra(EXTRA_SCREEN_NAME, username);
+        return i;
+    }
+
+    public static Intent forDefaultUser(Context context) {
+        Intent i = new Intent(context, ProfileActivity.class);
+        return i;
     }
 
     private void populateProfileHeader(User user) {

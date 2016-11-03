@@ -1,5 +1,6 @@
 package com.codepath.apps.tweetster;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.codepath.apps.tweetster.activities.ProfileActivity;
 import com.codepath.apps.tweetster.models.Tweet;
 import com.squareup.picasso.Picasso;
 
@@ -17,6 +19,7 @@ import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
     private List<Tweet> tweets;
+    private Context context;
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView username;
@@ -34,7 +37,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         }
     }
 
-    public TweetsArrayAdapter(List<Tweet> tweets) {
+    public TweetsArrayAdapter(Context context, List<Tweet> tweets) {
+        this.context = context;
         this.tweets = tweets;
     }
 
@@ -55,12 +59,18 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Tweet tweet = tweets.get(position);
+        final Tweet tweet = tweets.get(position);
         holder.username.setText(tweet.getUser().getName());
         holder.body.setText(tweet.getBody());
         holder.timestamp.setText(tweet.getRelativeTimeAgo());
 
         holder.profileImage.setImageResource(0);
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl()).into(holder.profileImage);
+        holder.profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                context.startActivity(ProfileActivity.forUsername(context, tweet.getUser().getScreenName()));
+            }
+        });
     }
 }

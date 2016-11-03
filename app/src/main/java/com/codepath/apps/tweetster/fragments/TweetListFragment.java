@@ -45,7 +45,7 @@ public abstract class TweetListFragment extends Fragment {
             }
         });
         tweets = new ArrayList<>();
-        adapter = new TweetsArrayAdapter(tweets);
+        adapter = new TweetsArrayAdapter(getActivity(), tweets);
 
         rvTweets.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
