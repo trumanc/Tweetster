@@ -47,6 +47,15 @@
         </activity>
         <activity android:name=".activities.ProfileActivity">
         </activity>
+        <activity
+            android:name=".activities.ComposeTweetActivity"
+            android:label="@string/title_activity_compose_tweet"
+            android:parentActivityName=".activities.TimelineActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.codepath.apps.tweetster.activities.TimelineActivity"/>
+        </activity>
     </application>
 
 </manifest>

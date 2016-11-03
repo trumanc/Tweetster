@@ -39,24 +39,50 @@ public class ProfileActivity extends AppCompatActivity {
 
         final String screenName = getIntent().getStringExtra(EXTRA_SCREEN_NAME);
 
-        client.getUserInfo(screenName, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                if (response.length() > 0) {
-                    try {
-                        user = User.fromJSON(response.getJSONObject(0));
-                    } catch (JSONException e) {
-                        Log.e("ERROR", "Couldn't extract a user for profile activity.", e);
+        if (screenName != null) {
+            client.getUserInfo(screenName, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    if (response.length() > 0) {
+                        try {
+                            user = User.fromJSON(response.getJSONObject(0));
+                        } catch (JSONException e) {
+                            Log.e("ERROR", "Couldn't extract a user for profile activity.", e);
+                            finish();
+                        }
+                    } else {
+                        Toast.makeText(ProfileActivity.this, "No user with screenname: " + screenName, Toast.LENGTH_SHORT).show();
                         finish();
                     }
-                } else {
-                    Toast.makeText(ProfileActivity.this, "No user with screenname: " + screenName, Toast.LENGTH_SHORT).show();
+                    getSupportActionBar().setTitle("@" + user.getScreenName());
+                    populateProfileHeader(user);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Toast.makeText(ProfileActivity.this, "API call failed", Toast.LENGTH_SHORT).show();
+                    Log.e("ERROR", "Throwable: ", throwable);
                     finish();
                 }
-                getSupportActionBar().setTitle("@" + user.getScreenName());
-                populateProfileHeader(user);
-            }
-        });
+            });
+        } else {
+
+            client.getLoggedInUserInfo(new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    user = User.fromJSON(response);
+                    getSupportActionBar().setTitle("@" + user.getScreenName());
+                    populateProfileHeader(user);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Toast.makeText(ProfileActivity.this, "API call failed", Toast.LENGTH_SHORT).show();
+                    Log.e("ERROR", "Throwable: ", throwable);
+                    finish();
+                }
+            });
+        }
 
         UserTimelineFragment frag = UserTimelineFragment.newInstance(screenName);
 

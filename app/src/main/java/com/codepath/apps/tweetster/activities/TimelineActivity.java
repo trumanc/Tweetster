@@ -44,7 +44,11 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     public void onProfileView(MenuItem item) {
-        Intent i = new Intent(this, ProfileActivity.class);
+        startActivity(ProfileActivity.forDefaultUser(this));
+    }
+
+    public void onComposeTweet(MenuItem item) {
+        Intent i = new Intent(this, ComposeTweetActivity.class);
         startActivity(i);
     }
 
