@@ -16,12 +16,18 @@ import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.codepath.apps.tweetster.R;
+import com.codepath.apps.tweetster.SmartFragmentStatePagerAdapter;
 import com.codepath.apps.tweetster.fragments.HomeTimelineFragment;
 import com.codepath.apps.tweetster.fragments.MentionsTimelineFragment;
 import com.codepath.apps.tweetster.fragments.TweetListFragment;
+import com.codepath.apps.tweetster.models.Tweet;
+
+import static com.codepath.apps.tweetster.activities.ComposeTweetActivity.TWEET_POSTED;
 
 public class TimelineActivity extends AppCompatActivity {
-    private TweetListFragment fragmentTweetList;
+    private TweetsPagerAdapter pagerAdapter;
+
+    private static int COMPOSE_TWEET_CODE = 7;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +37,8 @@ public class TimelineActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ViewPager vpPager = (ViewPager) findViewById(R.id.viewpager);
-        vpPager.setAdapter(new TweetsPagerAdapter(getSupportFragmentManager()));
+        pagerAdapter = new TweetsPagerAdapter(getSupportFragmentManager());
+        vpPager.setAdapter(pagerAdapter);
 
         PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         tabs.setViewPager(vpPager);
@@ -49,10 +56,23 @@ public class TimelineActivity extends AppCompatActivity {
 
     public void onComposeTweet(MenuItem item) {
         Intent i = new Intent(this, ComposeTweetActivity.class);
-        startActivity(i);
+        startActivityForResult(i, COMPOSE_TWEET_CODE);
     }
 
-    public class TweetsPagerAdapter extends FragmentPagerAdapter {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != COMPOSE_TWEET_CODE) {
+            return;
+        }
+        if (resultCode == ComposeTweetActivity.TWEET_POSTED) {
+            Tweet added = (Tweet) data.getSerializableExtra(ComposeTweetActivity.EXTRA_TWEET);
+            TweetListFragment frag = (TweetListFragment) pagerAdapter.getRegisteredFragment(0);
+            frag.prependTweet(added);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public class TweetsPagerAdapter extends SmartFragmentStatePagerAdapter {
         private String tabTitles[] = { "Home", "Mentions" };
 
         public TweetsPagerAdapter(FragmentManager fm) {

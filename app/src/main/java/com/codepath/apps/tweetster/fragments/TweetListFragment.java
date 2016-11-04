@@ -29,7 +29,11 @@ public abstract class TweetListFragment extends Fragment {
     private boolean refreshing;
 
     public TweetListFragment() {
+        // Need to create the list in the constructor so we can pass in new tweets before everything is inflated
+        tweets = new ArrayList<>();
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,9 +48,9 @@ public abstract class TweetListFragment extends Fragment {
                 refreshing = true;
             }
         });
-        tweets = new ArrayList<>();
-        adapter = new TweetsArrayAdapter(getActivity(), tweets);
 
+
+        adapter = new TweetsArrayAdapter(getActivity(), tweets);
         rvTweets.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rvTweets.setLayoutManager(llm);
@@ -68,8 +72,6 @@ public abstract class TweetListFragment extends Fragment {
     }
 
     public void addAll(List<Tweet> tweets) {
-
-
         if (tweets.size() == 0) {
             Toast.makeText(getActivity(), "That's all!", Toast.LENGTH_SHORT).show();
         } else {
@@ -79,6 +81,13 @@ public abstract class TweetListFragment extends Fragment {
                 refreshing = false;
             }
             this.tweets.addAll(tweets);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    public void prependTweet(Tweet toAdd) {
+        tweets.add(0, toAdd);
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
