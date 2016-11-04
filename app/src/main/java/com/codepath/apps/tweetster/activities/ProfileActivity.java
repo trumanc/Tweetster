@@ -103,6 +103,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 i.putExtra(EXTRA_USER, User.fromJSON(response));
                 context.startActivity(i);
+                pd.cancel();
             }
 
             @Override

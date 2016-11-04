@@ -52,8 +52,7 @@ public class UserTimelineFragment extends TweetListFragment {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
         client = TweetsterApplication.getRestClient();
-        loadTweetsSinceId(null);
-
+        
         return v;
     }
 
