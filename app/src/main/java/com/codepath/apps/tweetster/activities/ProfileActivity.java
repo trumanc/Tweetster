@@ -1,5 +1,6 @@
 package com.codepath.apps.tweetster.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.IntegerRes;
@@ -26,65 +27,24 @@ import org.w3c.dom.Text;
 
 import cz.msebera.android.httpclient.Header;
 
+import static android.content.Intent.EXTRA_USER;
+
 public class ProfileActivity extends AppCompatActivity {
-    private TwitterClient client;
+    private static TwitterClient client = TweetsterApplication.getRestClient();
     private User user;
 
-    private static final String EXTRA_SCREEN_NAME = "extra_screen_name";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        client = TweetsterApplication.getRestClient();
 
-        final String screenName = getIntent().getStringExtra(EXTRA_SCREEN_NAME);
+        user = (User) getIntent().getSerializableExtra(EXTRA_USER);
 
-        if (screenName != null) {
-            client.getUserInfo(screenName, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                    if (response.length() > 0) {
-                        try {
-                            user = User.fromJSON(response.getJSONObject(0));
-                        } catch (JSONException e) {
-                            Log.e("ERROR", "Couldn't extract a user for profile activity.", e);
-                            finish();
-                        }
-                    } else {
-                        Toast.makeText(ProfileActivity.this, "No user with screenname: " + screenName, Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                    getSupportActionBar().setTitle("@" + user.getScreenName());
-                    populateProfileHeader(user);
-                }
+        getSupportActionBar().setTitle("@" + user.getScreenName());
+        populateProfileHeader(user);
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    Toast.makeText(ProfileActivity.this, "API call failed", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR", "Throwable: ", throwable);
-                    finish();
-                }
-            });
-        } else {
 
-            client.getLoggedInUserInfo(new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    user = User.fromJSON(response);
-                    getSupportActionBar().setTitle("@" + user.getScreenName());
-                    populateProfileHeader(user);
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    Toast.makeText(ProfileActivity.this, "API call failed", Toast.LENGTH_SHORT).show();
-                    Log.e("ERROR", "Throwable: ", throwable);
-                    finish();
-                }
-            });
-        }
-
-        UserTimelineFragment frag = UserTimelineFragment.newInstance(screenName);
+        UserTimelineFragment frag = UserTimelineFragment.newInstance(user.getScreenName());
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
@@ -93,15 +53,65 @@ public class ProfileActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    public static Intent forUsername(Context context, String username) {
-        Intent i = new Intent(context, ProfileActivity.class);
-        i.putExtra(EXTRA_SCREEN_NAME, username);
-        return i;
+    public static void startForUsername(final Context context, final String username) {
+
+        final Intent i = new Intent(context, ProfileActivity.class);
+
+        final ProgressDialog pd = new ProgressDialog(context);
+        pd.setTitle("Loading...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
+
+        client.getUserInfo(username, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                if (response.length() > 0) {
+                    try {
+                        i.putExtra(EXTRA_USER, User.fromJSON(response.getJSONObject(0)));
+                        context.startActivity(i);
+                    } catch (JSONException e) {
+                        Log.e("ERROR", "Couldn't extract a user for profile activity.", e);
+                        Toast.makeText(context, "Network call failed for some reason...", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(context, "No user with screenname: " + username, Toast.LENGTH_SHORT).show();
+                }
+                pd.cancel();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Toast.makeText(context, "API call failed", Toast.LENGTH_SHORT).show();
+                Log.e("ERROR", "Throwable: ", throwable);
+                pd.cancel();
+            }
+        });
     }
 
-    public static Intent forDefaultUser(Context context) {
-        Intent i = new Intent(context, ProfileActivity.class);
-        return i;
+    public static void startForDefaultUser(final Context context) {
+        final Intent i = new Intent(context, ProfileActivity.class);
+        final ProgressDialog pd = new ProgressDialog(context);
+        pd.setTitle("Loading...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
+
+
+        client.getLoggedInUserInfo(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                i.putExtra(EXTRA_USER, User.fromJSON(response));
+                context.startActivity(i);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Toast.makeText(context, "API call failed", Toast.LENGTH_SHORT).show();
+                Log.e("ERROR", "Throwable: ", throwable);
+                pd.cancel();
+            }
+        });
     }
 
     private void populateProfileHeader(User user) {

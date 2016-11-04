@@ -18,8 +18,12 @@ import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
 
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
+    private static final int FOOTER_VIEW = 1;
     private List<Tweet> tweets;
     private Context context;
+
+    private ViewHolder footerHolder;
+    private boolean showLoader;
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView username;
@@ -44,21 +48,43 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     @Override
     public int getItemCount() {
-        return tweets.size();
+        return tweets.size() + 1; // add a footer view
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == tweets.size()) {
+            return FOOTER_VIEW;
+        }
+        return super.getItemViewType(position);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
-        View tweetView = inflater.inflate(R.layout.item_tweet, parent, false);
-        ViewHolder holder = new ViewHolder(tweetView);
+        ViewHolder holder;
+        if (viewType == FOOTER_VIEW) {
+            View footerView = inflater.inflate(R.layout.item_loading_bar, parent, false);
+            holder = new ViewHolder(footerView);
+            footerHolder = holder;
+        } else {
+            View tweetView = inflater.inflate(R.layout.item_tweet, parent, false);
+            holder = new ViewHolder(tweetView);
+        }
 
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        if (position == tweets.size()) {
+            // Footer, no need to bind anything
+            if (showLoader) {
+                footerHolder.itemView.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
         final Tweet tweet = tweets.get(position);
         holder.username.setText(tweet.getUser().getName());
         holder.body.setText(tweet.getBody());
@@ -69,8 +95,15 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         holder.profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                context.startActivity(ProfileActivity.forUsername(context, tweet.getUser().getScreenName()));
+                ProfileActivity.startForUsername(context, tweet.getUser().getScreenName());
             }
         });
+    }
+
+    public void showLoaderBar(boolean show) {
+        showLoader = show;
+        if (footerHolder != null) {
+            footerHolder.itemView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+        }
     }
 }

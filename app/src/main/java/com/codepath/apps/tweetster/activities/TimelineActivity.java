@@ -1,5 +1,6 @@
 package com.codepath.apps.tweetster.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -51,7 +52,8 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     public void onProfileView(MenuItem item) {
-        startActivity(ProfileActivity.forDefaultUser(this));
+
+        ProfileActivity.startForDefaultUser(this);
     }
 
     public void onComposeTweet(MenuItem item) {

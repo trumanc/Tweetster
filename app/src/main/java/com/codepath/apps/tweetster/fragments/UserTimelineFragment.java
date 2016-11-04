@@ -43,19 +43,23 @@ public class UserTimelineFragment extends TweetListFragment {
 
         this.screenName = getArguments().getString(ARG_SCREEN_NAME);
 
-        client = TweetsterApplication.getRestClient();
-        loadTweetsSinceId(null);
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        client = TweetsterApplication.getRestClient();
+        loadTweetsSinceId(null);
+
+        return v;
     }
 
     @Override
     protected void loadTweetsSinceId(Long id) {
+        adapter.showLoaderBar(true);
         client.getUserTimeline(id, screenName, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -65,6 +69,7 @@ public class UserTimelineFragment extends TweetListFragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject errorResponse) {
+                adapter.showLoaderBar(false);
                 Log.e("ERROR", errorResponse.toString(), error);
             }
         });

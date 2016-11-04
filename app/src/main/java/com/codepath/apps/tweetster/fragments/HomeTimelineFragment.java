@@ -28,7 +28,6 @@ public class HomeTimelineFragment extends TweetListFragment {
         super.onCreate(savedInstanceState);
 
         client = TweetsterApplication.getRestClient();
-        loadTweetsSinceId(null);
     }
 
     @Override
@@ -39,6 +38,7 @@ public class HomeTimelineFragment extends TweetListFragment {
 
 
     protected void loadTweetsSinceId(Long id) {
+        adapter.showLoaderBar(true);
         client.getHomeTimeline(id, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -49,7 +49,9 @@ public class HomeTimelineFragment extends TweetListFragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject errorResponse) {
                 Log.e("ERROR", errorResponse.toString(), error);
+                adapter.showLoaderBar(false);
             }
+
         });
     }
 }

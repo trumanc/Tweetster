@@ -27,19 +27,23 @@ public class MentionsTimelineFragment extends TweetListFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        client = TweetsterApplication.getRestClient();
-        loadTweetsSinceId(null);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        client = TweetsterApplication.getRestClient();
+        loadTweetsSinceId(null);
+
+        return v;
     }
 
     @Override
     protected void loadTweetsSinceId(Long id) {
+        adapter.showLoaderBar(true);
         client.getMentionsTimeline(id, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -49,7 +53,8 @@ public class MentionsTimelineFragment extends TweetListFragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject errorResponse) {
-                Log.e("ERROR", errorResponse.toString(), error);
+                adapter.showLoaderBar(false);
+                Log.e("ERROR", errorResponse != null ? errorResponse.toString() : "", error);
             }
         });
     }

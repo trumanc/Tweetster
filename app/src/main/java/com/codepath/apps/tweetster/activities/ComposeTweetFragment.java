@@ -1,5 +1,6 @@
 package com.codepath.apps.tweetster.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -78,16 +79,23 @@ public class ComposeTweetFragment extends Fragment {
                 if (body.length() > 140) {
                     Snackbar.make(getView(), "Your tweet is too long!", Snackbar.LENGTH_SHORT).show();
                 } else {
+                    final ProgressDialog pd = new ProgressDialog(getActivity());
+                    pd.setTitle("Sending...");
+                    pd.setMessage("Please wait.");
+                    pd.setCancelable(false);
+                    pd.show();
                     client.postNewTweet(body, new JsonHttpResponseHandler() {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             Tweet newTweet = Tweet.fromJSONObject(response);
                             listener.onTweetSubmitted(newTweet);
+                            pd.cancel();
                         }
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                             Log.e("POST", "new tweet post failed.", throwable);
+                            pd.cancel();
                             Snackbar.make(getView(), "Your post failed :( check the log.", Snackbar.LENGTH_INDEFINITE);
                         }
                     });

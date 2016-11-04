@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class TweetListFragment extends Fragment {
     private RecyclerView rvTweets;
     private List<Tweet> tweets;
-    private TweetsArrayAdapter adapter;
+    protected TweetsArrayAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
     private SwipeRefreshLayout swipeContainer;
     private boolean refreshing;
@@ -31,6 +31,7 @@ public abstract class TweetListFragment extends Fragment {
     public TweetListFragment() {
         // Need to create the list in the constructor so we can pass in new tweets before everything is inflated
         tweets = new ArrayList<>();
+
     }
 
 
@@ -39,6 +40,8 @@ public abstract class TweetListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tweet_list, container, false);
+
+        adapter = new TweetsArrayAdapter(getContext(), tweets);
         rvTweets = (RecyclerView) view.findViewById(R.id.rvTweets);
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.content_timeline);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -50,7 +53,6 @@ public abstract class TweetListFragment extends Fragment {
         });
 
 
-        adapter = new TweetsArrayAdapter(getActivity(), tweets);
         rvTweets.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rvTweets.setLayoutManager(llm);
@@ -81,8 +83,10 @@ public abstract class TweetListFragment extends Fragment {
                 refreshing = false;
             }
             this.tweets.addAll(tweets);
-            adapter.notifyDataSetChanged();
         }
+
+        adapter.showLoaderBar(false);
+        adapter.notifyDataSetChanged();
     }
 
     public void prependTweet(Tweet toAdd) {
