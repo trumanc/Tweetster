@@ -12,10 +12,14 @@ import android.view.ViewGroup;
 import com.codepath.apps.tweetster.TwitterClient;
 import com.codepath.apps.tweetster.application.TweetsterApplication;
 import com.codepath.apps.tweetster.models.Tweet;
+import com.codepath.apps.tweetster.models.Tweet_Table;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -33,7 +37,16 @@ public class HomeTimelineFragment extends TweetListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        List<Tweet> cachedTweets = new Select()
+                .from(Tweet.class) // This could break if we allowed the user to sign out of the app. Good thing we don't :)
+                .orderBy(Tweet_Table.uid, false)
+                .queryList();
+        addAll(cachedTweets);
+        refreshing = true;
+
+        return v;
     }
 
 
@@ -48,8 +61,9 @@ public class HomeTimelineFragment extends TweetListFragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject errorResponse) {
-                Log.e("ERROR", errorResponse.toString(), error);
+                Log.e("ERROR", errorResponse == null ? "" : errorResponse.toString(), error);
                 adapter.showLoaderBar(false);
+                swipeContainer.setRefreshing(false);
             }
 
         });

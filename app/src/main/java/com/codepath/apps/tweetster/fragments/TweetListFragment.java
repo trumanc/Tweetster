@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +26,8 @@ public abstract class TweetListFragment extends Fragment {
     private List<Tweet> tweets;
     protected TweetsArrayAdapter adapter;
     private EndlessRecyclerViewScrollListener scrollListener;
-    private SwipeRefreshLayout swipeContainer;
-    private boolean refreshing;
+    protected SwipeRefreshLayout swipeContainer;
+    protected boolean refreshing;
 
     public TweetListFragment() {
         // Need to create the list in the constructor so we can pass in new tweets before everything is inflated
@@ -74,6 +75,13 @@ public abstract class TweetListFragment extends Fragment {
     }
 
     public void addAll(List<Tweet> tweets) {
+        for (Tweet t : tweets) {
+            t.save();
+            if (t.isMention()) {
+                Log.d("PAISE", "A");
+            }
+            t.getUser().save();
+        }
         if (tweets.size() == 0) {
             Toast.makeText(getActivity(), "That's all!", Toast.LENGTH_SHORT).show();
         } else {

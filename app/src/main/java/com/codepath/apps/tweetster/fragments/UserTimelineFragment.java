@@ -12,10 +12,15 @@ import android.view.ViewGroup;
 import com.codepath.apps.tweetster.TwitterClient;
 import com.codepath.apps.tweetster.application.TweetsterApplication;
 import com.codepath.apps.tweetster.models.Tweet;
+import com.codepath.apps.tweetster.models.Tweet_Table;
+import com.codepath.apps.tweetster.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -25,15 +30,15 @@ import static android.content.Intent.getIntent;
 public class UserTimelineFragment extends TweetListFragment {
     private TwitterClient client;
 
-    private String screenName;
 
+    private static final String ARG_USER = "arg_user";
 
-    private static final String ARG_SCREEN_NAME = "screen_name";
+    private User user;
 
-    public static UserTimelineFragment newInstance(String screenName) {
+    public static UserTimelineFragment newInstance(User user) {
         UserTimelineFragment f = new UserTimelineFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_SCREEN_NAME, screenName);
+        args.putSerializable(ARG_USER, user);
         f.setArguments(args);
         return f;
     }
@@ -41,8 +46,7 @@ public class UserTimelineFragment extends TweetListFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.screenName = getArguments().getString(ARG_SCREEN_NAME);
-
+        this.user = (User) getArguments().getSerializable(ARG_USER);
 
     }
 
@@ -52,14 +56,21 @@ public class UserTimelineFragment extends TweetListFragment {
         View v = super.onCreateView(inflater, container, savedInstanceState);
 
         client = TweetsterApplication.getRestClient();
-        
+
+        List<Tweet> cachedTweets = new Select()
+                .from(Tweet.class)
+                .where(Tweet_Table.user_uid.eq(user.getUid()))
+                .orderBy(Tweet_Table.uid, false)
+                .queryList();
+        addAll(cachedTweets);
+        refreshing = true;
         return v;
     }
 
     @Override
     protected void loadTweetsSinceId(Long id) {
         adapter.showLoaderBar(true);
-        client.getUserTimeline(id, screenName, new JsonHttpResponseHandler() {
+        client.getUserTimeline(id, user.getScreenName(), new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.d("DEBUG", response.toString());
@@ -69,7 +80,8 @@ public class UserTimelineFragment extends TweetListFragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable error, JSONObject errorResponse) {
                 adapter.showLoaderBar(false);
-                Log.e("ERROR", errorResponse.toString(), error);
+                swipeContainer.setRefreshing(false);
+                Log.e("ERROR", errorResponse == null ? "" : errorResponse.toString(), error);
             }
         });
     }

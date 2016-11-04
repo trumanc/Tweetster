@@ -37,6 +37,13 @@ package com.codepath.apps.tweetster.models;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import com.codepath.apps.tweetster.application.MyDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,27 +55,76 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Tweet implements Serializable {
+@Table(database = MyDatabase.class)
+public class Tweet extends BaseModel implements Serializable {
 
+    @Column
+    private boolean isMention;
+
+    public boolean isMention() {
+        return isMention;
+    }
+
+    public void setMention(boolean mention) {
+        isMention = mention;
+    }
+
+    @Column
     private String body;
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
+
+    @PrimaryKey
     private long uid;
+
+    @ForeignKey
     private User user;
+
+    @Column
     private String createdAt;
 
-    public static Tweet fromJSONObject(JSONObject object) {
-        Tweet tweet = new Tweet();
+    public Tweet() {
+        super();
+    }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Tweet(JSONObject object) {
+        super();
         try {
-            tweet.body = object.getString("text");
-            tweet.uid = object.getLong("id");
-            tweet.user = User.fromJSON(object.getJSONObject("user"));
-            tweet.createdAt = object.getString("created_at");
+            body = object.getString("text");
+            uid = object.getLong("id");
+            user = User.fromJSON(object.getJSONObject("user"));
+            createdAt = object.getString("created_at");
         } catch (JSONException e) {
             Log.e("ERROR", "Failed to parse a tweet", e);
             throw new RuntimeException(e);
         }
+    }
 
-        return tweet;
+    public Tweet(JSONObject object, boolean isMention) {
+        this(object);
+        this.isMention = isMention;
+    }
+
+    public static Tweet fromJSONObject(JSONObject object) {
+        return new Tweet(object, false);
+    }
+
+    public static Tweet fromMentionJSONObject(JSONObject object) {
+        return new Tweet(object, true);
     }
 
     public static List<Tweet> fromJSONArray(JSONArray array) {
@@ -76,6 +132,20 @@ public class Tweet implements Serializable {
         for (int ind = 0; ind < array.length(); ind++) {
             try {
                 result.add(fromJSONObject(array.getJSONObject(ind)));
+            } catch (JSONException e) {
+                Log.e("ERROR", "Failed to extract a tweet from array", e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        return result;
+    }
+
+    public static List<Tweet> fromMentionsJSONArray(JSONArray array) {
+        List<Tweet> result = new ArrayList<>(array.length());
+        for (int ind = 0; ind < array.length(); ind++) {
+            try {
+                result.add(fromMentionJSONObject(array.getJSONObject(ind)));
             } catch (JSONException e) {
                 Log.e("ERROR", "Failed to extract a tweet from array", e);
                 throw new RuntimeException(e);

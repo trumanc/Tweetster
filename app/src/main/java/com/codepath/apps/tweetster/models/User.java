@@ -59,36 +59,88 @@ package com.codepath.apps.tweetster.models;
 }
  */
 
+import com.codepath.apps.tweetster.application.MyDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+@Table(database = MyDatabase.class)
+public class User extends BaseModel implements Serializable {
+    @Column
     private String name;
+
+    @PrimaryKey
     private long uid;
+
+    @Column
     private String screenName;
+
+    @Column
     private String profileImageUrl;
+
+    @Column
     private int numFollowers;
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
+    public void setNumFollowers(int numFollowers) {
+        this.numFollowers = numFollowers;
+    }
+
+    public void setNumFollowing(int numFollowing) {
+        this.numFollowing = numFollowing;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
+    }
+
+    @Column
     private int numFollowing;
+
+    @Column
     private String tagline;
 
-    public static User fromJSON(JSONObject object) {
-        User u = new User();
+    public User() {
+        super();
+    }
 
+    public User(JSONObject object) {
         try {
-            u.name = object.getString("name");
-            u.uid = object.getLong("id");
-            u.screenName = object.getString("screen_name");
-            u.profileImageUrl = object.getString("profile_image_url");
-            u.tagline = object.getString("description");
-            u.numFollowers = object.getInt("followers_count");
-            u.numFollowing = object.getInt("friends_count");
+            name = object.getString("name");
+            uid = object.getLong("id");
+            screenName = object.getString("screen_name");
+            profileImageUrl = object.getString("profile_image_url");
+            tagline = object.getString("description");
+            numFollowers = object.getInt("followers_count");
+            numFollowing = object.getInt("friends_count");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        return u;
+    }
+    public static User fromJSON(JSONObject object) {
+        return new User(object);
     }
 
     public String getName() {

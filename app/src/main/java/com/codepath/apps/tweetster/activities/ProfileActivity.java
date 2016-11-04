@@ -44,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
         populateProfileHeader(user);
 
 
-        UserTimelineFragment frag = UserTimelineFragment.newInstance(user.getScreenName());
+        UserTimelineFragment frag = UserTimelineFragment.newInstance(user);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
